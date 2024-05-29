@@ -1,11 +1,10 @@
 package org.informatics_java.data.publications;
 
-import org.informatics_java.data.publications.enums.PageSize;
-import org.informatics_java.data.publications.enums.PaperType;
+import org.informatics_java.data.enums.PageSize;
 
-import java.math.BigDecimal;
+import java.util.Objects;
 
-public class Publication implements Printable {
+public class Publication implements Comparable<Publication>{
     private String title;
     private int numberOfPages;
     private PageSize pageSize;
@@ -37,17 +36,21 @@ public class Publication implements Printable {
                 '}';
     }
 
-    private BigDecimal pricePerPage(PaperType paperType) {
-        BigDecimal pricePerPage = BigDecimal.ZERO;
-        for (int i = 0; i < pageSize.ordinal(); i++){
-            pricePerPage = pricePerPage.multiply(BigDecimal.valueOf(PageSize.getPriceIncreasePercent() / 100));
-        }
-
-        return pricePerPage;
-    }
     @Override
-    public BigDecimal print(PaperType paperType) {
-        BigDecimal pricePerPage = pricePerPage(paperType);
-        return paperType.getBasePrice().multiply(pricePerPage);
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Publication that = (Publication) o;
+        return numberOfPages == that.numberOfPages && Objects.equals(title, that.title) && pageSize == that.pageSize;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(title, numberOfPages, pageSize);
+    }
+
+    @Override
+    public int compareTo(Publication o) {
+        return this.getTitle().compareTo(o.getTitle());
     }
 }
