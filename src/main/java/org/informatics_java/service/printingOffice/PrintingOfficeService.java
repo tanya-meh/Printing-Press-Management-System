@@ -11,8 +11,8 @@ import java.math.BigDecimal;
 
 public interface PrintingOfficeService {
     public BigDecimal getExpensesTotal();
-    public int buyPaper(Paper paper, int numberOfPapers) throws IllegalQuantityException;
-    public boolean printOrder(Publication publication, int numberOfCopies, PaperType paperType, boolean coloredPrint) throws IllegalQuantityException, IncompatiblePrinterException;
-    public boolean loadPaperInPrinter(Paper paper, int numberOfPapers, Printer printer) throws IllegalQuantityException;
+    public int buyPaper(Paper paper, int numberOfPapers);
+    public boolean printOrder(Publication publication, int numberOfCopies, PaperType paperType, boolean coloredPrint);
+    public boolean loadPaperInPrinter(Paper paper, int numberOfPapers, Printer printer);
 
 }

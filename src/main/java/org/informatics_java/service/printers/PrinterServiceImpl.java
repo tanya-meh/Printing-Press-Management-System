@@ -38,7 +38,7 @@ public class PrinterServiceImpl implements PrinterService{
      * @throws IllegalQuantityException
      */
     @Override
-    public int loadPaper(Printer printer, int numberOfPapers, Paper paper) throws IllegalQuantityException {
+    public int loadPaper(Printer printer, int numberOfPapers, Paper paper) {
         if (numberOfPapers <= 0) {
             throw new IllegalQuantityException("Number of papers must be a positive integer.");
         }
@@ -97,7 +97,7 @@ public class PrinterServiceImpl implements PrinterService{
      * @throws IncompatiblePrinterException
      */
     @Override
-    public boolean print(Printer printer, Publication publication, int numberOfCopies, PaperType paperType, boolean coloredPrint) throws IllegalQuantityException, IncompatiblePrinterException {
+    public boolean print(Printer printer, Publication publication, int numberOfCopies, PaperType paperType, boolean coloredPrint) {
         if (numberOfCopies <= 0) {
             throw new IllegalQuantityException("Number of copies must be a positive integer.");
         }
@@ -108,6 +108,11 @@ public class PrinterServiceImpl implements PrinterService{
 
         if (!coloredPrint && printer.isColored()){
             throw new IncompatiblePrinterException("This printer only prints in colored ink.");
+        }
+
+        if (!printer.getNumberOfPapersLoadedMap().containsKey(new Paper(paperType, publication.getPageSize()))) {
+            System.out.println(paperType + " ");
+            return false;
         }
 
         if (hasEnoughPaper(printer, publication, numberOfCopies, paperType)) {

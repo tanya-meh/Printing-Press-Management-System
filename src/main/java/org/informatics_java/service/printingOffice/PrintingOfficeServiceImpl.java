@@ -167,7 +167,7 @@ public class PrintingOfficeServiceImpl implements PrintingOfficeService {
      * @throws IllegalQuantityException
      */
     @Override
-    public int buyPaper(Paper paper, int numberOfPapers) throws IllegalQuantityException {
+    public int buyPaper(Paper paper, int numberOfPapers) {
         if (numberOfPapers <= 0){
             throw new IllegalQuantityException("Number of papers must be a positive integer.");
         }
@@ -203,7 +203,7 @@ public class PrintingOfficeServiceImpl implements PrintingOfficeService {
      * @throws IllegalQuantityException
      */
     @Override
-    public boolean loadPaperInPrinter(Paper paper, int numberOfPapers, Printer printer) throws IllegalQuantityException {
+    public boolean loadPaperInPrinter(Paper paper, int numberOfPapers, Printer printer) {
         if (numberOfPapers <= 0){
             throw new IllegalQuantityException("Number of papers must be a positive integer.");
         }
@@ -252,7 +252,7 @@ public class PrintingOfficeServiceImpl implements PrintingOfficeService {
      * @throws IllegalQuantityException
      */
     @Override
-    public boolean printOrder(Publication publication, int numberOfCopies, PaperType paperType, boolean coloredPrint) throws IllegalQuantityException {
+    public boolean printOrder(Publication publication, int numberOfCopies, PaperType paperType, boolean coloredPrint) {
         if(numberOfCopies <= 0) {
             throw new IllegalQuantityException("Number of copies must be a positive integer.");
         }

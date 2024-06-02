@@ -6,9 +6,12 @@ import org.informatics_java.data.enums.PageSize;
 import org.informatics_java.data.enums.PaperType;
 import org.informatics_java.data.publications.Publication;
 import org.informatics_java.exceptions.IllegalQuantityException;
+import org.informatics_java.exceptions.IncompatiblePrinterException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -21,7 +24,7 @@ class PrinterServiceImplTest {
     private Publication publication;
     private int numberOfCopies;
     private PaperType paperType;
-    private boolean isColored;
+    private boolean coloredPrint;
 
     @BeforeEach
     void setUp() {
@@ -29,6 +32,8 @@ class PrinterServiceImplTest {
 
         printer = Mockito.mock(Printer.class);
         Mockito.when(printer.getMaxNumberOfPapers()).thenReturn(300);
+        Mockito.when(printer.getNumberOfPapersLoadedMap()).thenReturn(Map.of(new Paper(PaperType.STANDARD, PageSize.A4), 100, new Paper(PaperType.GLOSSY, PageSize.A4), 100));
+        Mockito.when(printer.isColored()).thenReturn(true);
 
         paper = Mockito.mock(Paper.class);
         Mockito.when(paper.getPageSize()).thenReturn(PageSize.A4);
@@ -36,9 +41,11 @@ class PrinterServiceImplTest {
 
         publication = Mockito.mock(Publication.class);
         Mockito.when(publication.getPageSize()).thenReturn(PageSize.A4);
+        Mockito.when(publication.getNumberOfPages()).thenReturn(10);
 
-        /*paperType = Mockito.mock(PaperType.class);
-        Mockito.when(paperType.)*/
+        numberOfCopies = 20;
+        paperType = PaperType.STANDARD;
+        coloredPrint = true;
     }
 
     @Test
@@ -49,15 +56,66 @@ class PrinterServiceImplTest {
 
     @Test
     void when_numberOfPapersExceedsMaxNumWhenLoaded_then_loadPaper_returnPositiveValue() {
-        numberOfPapersToLoad = -20;
-        assertThrows(IllegalQuantityException.class, () -> printerService.loadPaper(printer, numberOfPapersToLoad, paper));
+        numberOfPapersToLoad = 150;
+        int expected = 50;
+        assertEquals(expected, printerService.loadPaper(printer, numberOfPapersToLoad, paper));
     }
 
     @Test
-    void testPrint() {
+    void when_numberOfPapersDoesNotExceedMaxNumWhenLoaded_then_loadPaper_returnZero() {
+        numberOfPapersToLoad = 80;
+        int expected = 0;
+        assertEquals(expected, printerService.loadPaper(printer, numberOfPapersToLoad, paper));
     }
 
     @Test
-    void testNumberOfPagesPrinted() {
+    void when_numberOfCopiesIsNotPositiveInteger_then_print_throwIllegalQuantityException() {
+        numberOfCopies = -20;
+        assertThrows(IllegalQuantityException.class, () -> printerService.print(printer, publication, numberOfCopies, paperType, coloredPrint));
+    }
+
+    @Test
+    void when_coloredPrintTrueButPrinterIsNotColored_then_print_throwIncompatiblePrinterException() {
+        Mockito.when(printer.isColored()).thenReturn(false);
+        assertThrows(IncompatiblePrinterException.class, () -> printerService.print(printer, publication, numberOfCopies, paperType, coloredPrint));
+    }
+
+    @Test
+    void when_coloredPrintFalseButPrinterIsColored_then_print_throwIncompatiblePrinterException() {
+        Mockito.when(printer.isColored()).thenReturn(true);
+        coloredPrint = false;
+        assertThrows(IncompatiblePrinterException.class, () -> printerService.print(printer, publication, numberOfCopies, paperType, coloredPrint));
+    }
+
+    @Test
+    void when_ValidNumberOfCopies_and_compatiblePrinter_but_printerDoesNotHaveEnoughPaper_then_print_throwIncompatiblePrinterException() {
+        numberOfCopies = 20;
+        assertFalse(printerService.print(printer, publication, numberOfCopies, paperType, coloredPrint));
+    }
+
+    @Test
+    void when_ValidNumberOfCopies_and_compatiblePrinter_but_PaperNotInPrinter_then_print_throwIncompatiblePrinterException() {
+        numberOfCopies = 5;
+        paperType = PaperType.NEWSPRINT;
+        assertFalse(printerService.print(printer, publication, numberOfCopies, paperType, coloredPrint));
+    }
+
+    @Test
+    void when_ValidNumberOfCopies_and_compatiblePrinter_and_printerHasEnoughPaper_then_print_throwIncompatiblePrinterException() {
+        numberOfCopies = 5;
+        assertTrue(printerService.print(printer, publication, numberOfCopies, paperType, coloredPrint));
+    }
+
+    @Test
+    void when_zeroPages_then_NumberOfPagesPrinted_returnZero() {
+        assertEquals(0, printerService.numberOfPagesPrinted(printer));
+    }
+
+    @Test
+    void when_printOnPrinter_then_NumberOfPagesPrinted_returnPositiveInteger() {
+        //printerService.print(printer, publication, 5, paperType, coloredPrint);
+        numberOfCopies = 5;
+        Mockito.when(printer.getPublicationsNumberOfPrintsMap()).thenReturn(Map.of(publication, numberOfCopies));
+        assertEquals(50, printerService.numberOfPagesPrinted(printer));
     }
 }
