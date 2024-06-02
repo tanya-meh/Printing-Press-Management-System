@@ -1,4 +1,4 @@
-package org.informatics_java.data.employees;
+package org.informatics_java.data;
 
 import org.informatics_java.data.enums.EmployeePosition;
 

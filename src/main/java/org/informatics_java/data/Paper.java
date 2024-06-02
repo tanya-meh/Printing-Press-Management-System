@@ -1,8 +1,7 @@
-package org.informatics_java.data.paper;
+package org.informatics_java.data;
 
 import org.informatics_java.data.enums.PageSize;
 import org.informatics_java.data.enums.PaperType;
-import org.informatics_java.data.publications.Publication;
 
 import java.util.Objects;
 
