@@ -79,12 +79,12 @@ public class Printer implements Comparable<Printer> {
                 '}';
     }
 
-    public int putNumberOfPapers(Paper paper, int numOfPapers) {
-        return this.numberOfPapersLoadedMap.put(paper, numOfPapers);
+    public void putNumberOfPapers(Paper paper, int numOfPapers) {
+        this.numberOfPapersLoadedMap.put(paper, numOfPapers);
     }
 
-    public int putNumberOfPublications(Publication publication, int numOfPrints) {
-        return this.publicationsNumberOfPrintsMap.put(publication, numOfPrints);
+    public void putNumberOfPublications(Publication publication, int numOfPrints) {
+        this.publicationsNumberOfPrintsMap.put(publication, numOfPrints);
     }
 }
 

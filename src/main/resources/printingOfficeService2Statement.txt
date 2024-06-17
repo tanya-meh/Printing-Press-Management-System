@@ -1,0 +1,3 @@
+Total expenses of printing office Print mania (id:po2): 2736.00
+Income of printing office Print mania (id:po2): 24
+Newspaper{} Publication{title='Spisanie1', numberOfPages=30, pageSize=A4} number of copies printed: 3

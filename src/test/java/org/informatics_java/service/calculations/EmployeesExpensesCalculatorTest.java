@@ -5,6 +5,7 @@ import org.informatics_java.data.enums.EmployeePosition;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 
 import java.math.BigDecimal;
@@ -58,6 +59,25 @@ class EmployeesExpensesCalculatorTest {
     }
 
     @Test
+    void when_employeesAllPositions_count_printerOperators() {
+        assertEquals(2, employeesExpensesCalculator.numberOfPrinterOperators(employeesAllPositions));
+    }
+
+    @Test
+    void when_employeesOnlyPrinterOperators_count_printerOperators() {
+        assertEquals(2, employeesExpensesCalculator.numberOfPrinterOperators(employeesAllPositions));
+    }
+
+    @Test
+    void when_thereAreManagers_count_Managers() {
+        assertEquals(2, employeesExpensesCalculator.numberOfManagers(employeesAllPositions));
+    }
+
+    @Test
+    void when_noManagers_count_Managers() {
+        assertEquals(0L, employeesExpensesCalculator.numberOfManagers(employeesOnlyPrinterOperators));
+    }
+    @Test
     void when_incomeOverThreshold_then_returnTrue() {
         assertTrue(employeesExpensesCalculator.isIncomeOverThreshold(incomeOverThreshold, incomeThresholdForSalaryIncrease));
     }
@@ -67,36 +87,45 @@ class EmployeesExpensesCalculatorTest {
         assertFalse(employeesExpensesCalculator.isIncomeOverThreshold(incomeBelowThreshold, incomeThresholdForSalaryIncrease));
     }
 
-    void sum_managersIncreasedSalariesTotal() {
+    @Test
+    void when_thereAreManagers_sum_managersIncreasedSalariesTotal() {
         BigDecimal expected = BigDecimal.valueOf(2200.).setScale(2, RoundingMode.HALF_UP);
-        assertEquals(expected, employeesExpensesCalculator.managersIncreasedSalariesTotal(numberOfManagers, baseEmployeeSalary, managersSalaryIncreasePercent));
+
+        assertEquals(expected, employeesExpensesCalculator.managersIncreasedSalariesTotal(employeesAllPositions, baseEmployeeSalary, managersSalaryIncreasePercent));
+    }
+
+    @Test
+    void when_thereAreNoManagers_sum_managersIncreasedSalariesTotal() {
+        BigDecimal expected = BigDecimal.valueOf(2200.).setScale(2, RoundingMode.HALF_UP);
+
+        assertEquals(expected, employeesExpensesCalculator.managersIncreasedSalariesTotal(employeesAllPositions, baseEmployeeSalary, managersSalaryIncreasePercent));
     }
 
     @Test
     void when_incomeBelowThreshold_and_EmployeesAllPositions_then_returnNumberOfEmployeesMultipliedBaseSalary() {
         BigDecimal expected = BigDecimal.valueOf(4000).setScale(2, RoundingMode.HALF_UP);
-        assertEquals(expected, employeesExpensesCalculator.EmployeesExpenses(employeesAllPositions, baseEmployeeSalary,
+        assertEquals(expected, employeesExpensesCalculator.employeesExpenses(employeesAllPositions, baseEmployeeSalary,
                 managersSalaryIncreasePercent, incomeThresholdForSalaryIncrease, incomeBelowThreshold));
     }
 
     @Test
     void when_incomeOverThreshold_and_EmployeesAllPositions_then_returnNumberOfEmployeesMultipliedBaseSalary() {
         BigDecimal expected = BigDecimal.valueOf(4200.).setScale(2, RoundingMode.HALF_UP);
-        assertEquals(expected, employeesExpensesCalculator.EmployeesExpenses(employeesAllPositions, baseEmployeeSalary,
+        assertEquals(expected, employeesExpensesCalculator.employeesExpenses(employeesAllPositions, baseEmployeeSalary,
                 managersSalaryIncreasePercent, incomeThresholdForSalaryIncrease, incomeOverThreshold));
     }
 
     @Test
     void when_incomeBelowThreshold_and_EmployeesOnlyPrintOperators_then_returnNumberOfEmployeesMultipliedBaseSalary() {
         BigDecimal expected = BigDecimal.valueOf(2000).setScale(2, RoundingMode.HALF_UP);
-        assertEquals(expected, employeesExpensesCalculator.EmployeesExpenses(employeesOnlyPrinterOperators, baseEmployeeSalary,
+        assertEquals(expected, employeesExpensesCalculator.employeesExpenses(employeesOnlyPrinterOperators, baseEmployeeSalary,
                 managersSalaryIncreasePercent, incomeThresholdForSalaryIncrease, incomeBelowThreshold));
     }
 
     @Test
     void when_incomeOverThreshold_and_EmployeesOnlyPrintOperators_then_returnNumberOfEmployeesMultipliedBaseSalary() {
         BigDecimal expected = BigDecimal.valueOf(2000).setScale(2, RoundingMode.HALF_UP);
-        assertEquals(expected, employeesExpensesCalculator.EmployeesExpenses(employeesOnlyPrinterOperators, baseEmployeeSalary,
+        assertEquals(expected, employeesExpensesCalculator.employeesExpenses(employeesOnlyPrinterOperators, baseEmployeeSalary,
                 managersSalaryIncreasePercent, incomeThresholdForSalaryIncrease, incomeBelowThreshold));
     }
 }

@@ -1,6 +1,5 @@
 package org.informatics_java.service.printingOffice;
 
-import org.informatics_java.data.Employee;
 import org.informatics_java.data.Printer;
 import org.informatics_java.data.PrintingOffice;
 import org.informatics_java.data.enums.PaperType;
@@ -15,6 +14,8 @@ import org.informatics_java.service.calculations.PaperExpensesCalculator;
 import org.informatics_java.service.printers.PrinterService;
 import org.informatics_java.service.printers.PrinterServiceImpl;
 
+import java.io.FileWriter;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.*;
 
@@ -104,6 +105,7 @@ public class PrintingOfficeServiceImpl implements PrintingOfficeService {
         return paperBoughtMap;
     }
 
+    @Override
     public BigDecimal getIncome() {
         return income;
     }
@@ -132,16 +134,19 @@ public class PrintingOfficeServiceImpl implements PrintingOfficeService {
         return discountPercent;
     }
 
+    @Override
     public void setPaperTypeBasePriceEnumMap(EnumMap<PaperType, BigDecimal> paperTypeBasePriceEnumMap) {
         this.paperTypeBasePriceEnumMap = paperTypeBasePriceEnumMap;
     }
 
+    @Override
     public void setPublicationPrintPriceMap(Map<Publication, BigDecimal> publicationPrintPriceMap) {
         this.publicationPrintPriceMap = publicationPrintPriceMap;
     }
 
-    public BigDecimal putPublicationPrintPrice(Publication publication, BigDecimal printPrice) {
-        return this.publicationPrintPriceMap.put(publication, printPrice);
+    @Override
+    public void putPublicationPrintPrice(Publication publication, BigDecimal printPrice) {
+        this.publicationPrintPriceMap.put(publication, printPrice);
     }
 
     /**
@@ -150,7 +155,7 @@ public class PrintingOfficeServiceImpl implements PrintingOfficeService {
      */
     @Override
     public BigDecimal getExpensesTotal() {
-        BigDecimal employeesExpenses = employeesExpensesCalculator.EmployeesExpenses(printingOffice.getEmployeeSet(), baseEmployeeSalary,
+        BigDecimal employeesExpenses = employeesExpensesCalculator.employeesExpenses(printingOffice.getEmployeeSet(), baseEmployeeSalary,
                 managersSalaryIncreasePercent, incomeThresholdForSalaryIncrease, income);
 
         BigDecimal paperExpenses = paperExpensesCalculator.paperExpenses(this.paperBoughtMap, paperTypeBasePriceEnumMap,
@@ -161,22 +166,22 @@ public class PrintingOfficeServiceImpl implements PrintingOfficeService {
 
     /**
      * The method increases the number of a certain paper in stock and the number of the paper bought by the Printing office
+     *
      * @param paper
      * @param numberOfPapers
-     * @return the number of papers in stock before the changes
      * @throws IllegalQuantityException
      */
     @Override
-    public int buyPaper(Paper paper, int numberOfPapers) {
+    public void buyPaper(Paper paper, int numberOfPapers) {
         if (numberOfPapers <= 0){
             throw new IllegalQuantityException("Number of papers must be a positive integer.");
         }
 
-        int currNumOfPapersBought = this.paperBoughtMap.get(paper);
+        int currNumOfPapersBought = this.paperBoughtMap.getOrDefault(paper, 0);
         this.paperBoughtMap.put(paper, currNumOfPapersBought + numberOfPapers);
 
-        int currNumOfPapersInStock = this.printingOffice.getPapersInStockMap().get(paper);
-        return this.printingOffice.putPapersInStock(paper, currNumOfPapersInStock + numberOfPapers);
+        int currNumOfPapersInStock = this.printingOffice.getPapersInStockMap().getOrDefault(paper, 0);
+        this.printingOffice.putPapersInStock(paper, currNumOfPapersInStock + numberOfPapers);
     }
 
     /**
@@ -186,9 +191,9 @@ public class PrintingOfficeServiceImpl implements PrintingOfficeService {
      * @param leftPaper
      * @return the number of papers in stock before the changes
      */
-    private int retrievePaperInStock(Paper paper, int numberOfPapers, int leftPaper) {
+    public void retrievePaperInStock(Paper paper, int numberOfPapers, int leftPaper) {
         int currNumOfPapers = this.printingOffice.getPapersInStockMap().get(paper);
-        return this.printingOffice.putPapersInStock(paper, (currNumOfPapers - numberOfPapers + leftPaper));
+        this.printingOffice.putPapersInStock(paper, (currNumOfPapers - numberOfPapers + leftPaper));
     }
 
     /**
@@ -209,14 +214,13 @@ public class PrintingOfficeServiceImpl implements PrintingOfficeService {
         }
 
         int leftPaper = 0;
-        if (this.printingOffice.getPapersInStockMap().get(paper) >= numberOfPapers) {
+        if (this.printingOffice.getPapersInStockMap().getOrDefault(paper, 0) >= numberOfPapers) {
             for (Printer printer1 : this.printingOffice.getPrinterSet()){
                 if (printer1.equals(printer)){
                     leftPaper = printerService.loadPaper(printer1, numberOfPapers, paper);
                     break;
                 }
             }
-
             this.retrievePaperInStock(paper, numberOfPapers, leftPaper);
 
             return true;
@@ -231,9 +235,9 @@ public class PrintingOfficeServiceImpl implements PrintingOfficeService {
      * @param numberOfCopies
      * @return the additional income
      */
-    private BigDecimal updateIncome(Publication publication, int numberOfCopies) {
-        BigDecimal additionalIncome = this.publicationPrintPriceMap.get(publication).multiply(BigDecimal.valueOf(numberOfCopies));
-        if(numberOfCopies > this.publicationsThresholdForDiscount) {
+    public BigDecimal updateIncome(Publication publication, int numberOfCopies) {
+        BigDecimal additionalIncome = this.getPublicationPrintPriceMap().get(publication).multiply(BigDecimal.valueOf(numberOfCopies));
+        if(numberOfCopies > this.getPublicationsThresholdForDiscount()) {
             additionalIncome = additionalIncome.subtract(additionalIncome.multiply(BigDecimal.valueOf(this.discountPercent/100)));
         }
         this.income = income.add(additionalIncome);
@@ -259,17 +263,50 @@ public class PrintingOfficeServiceImpl implements PrintingOfficeService {
 
         for (Printer printer : this.printingOffice.getPrinterSet()) {
             try {
-                if(printerService.print(printer, publication, numberOfCopies, paperType, coloredPrint)) {
+                if(this.printerService.print(printer, publication, numberOfCopies, paperType, coloredPrint)) {
                     this.updateIncome(publication, numberOfCopies);
+                    this.printingOffice.putPublicationsPrinted(publication, numberOfCopies);
                     return true;
                 }
             } catch (IncompatiblePrinterException e) {
-                return false;
+                continue;
             }
         }
 
         return false;
     }
 
+
+    /**
+     * The method prints out every publication that has been printed and number of copies printed.
+     */
+    @Override
+    public void printPublicationsNumberOfPrints() {
+        this.printingOffice.getPublicationNumberOfCopiesMap().entrySet()
+                        .stream()
+                        .forEach(entry -> System.out.println(entry.getKey() + " number of copies printed: " + entry.getValue())
+                );
+    }
+
+    @Override
+    public void writeStatement(String fileName) {
+        try(FileWriter fileWriter = new FileWriter(fileName);) {
+            fileWriter.write("Total expenses of printing office " + this.getPrintingOffice().getName() + " (id:" + this.getPrintingOffice().getId() + "): " + this.getExpensesTotal() + '\n');
+            fileWriter.write("Income of printing office " + this.getPrintingOffice().getName() + " (id:" + this.getPrintingOffice().getId() + "): " + this.getIncome() + '\n');
+
+            this.getPrintingOffice().getPublicationNumberOfCopiesMap().entrySet()
+                    .stream()
+                    .forEach(entry -> {
+                                try {
+                                    fileWriter.write(entry.getKey() + " number of copies printed: " + entry.getValue() + '\n');
+                                } catch (IOException e) {
+                                    throw new RuntimeException(e);
+                                }
+                            }
+                    );
+        } catch (IOException e) {
+            System.out.println("I/O Exception Occurred");
+        }
+    }
 
 }

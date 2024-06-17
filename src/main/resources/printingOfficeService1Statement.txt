@@ -1,0 +1,5 @@
+Total expenses of printing office Super print (id:po1): 3570.00
+Income of printing office Super print (id:po1): 401.00
+Poster{} Publication{title='Plakat1', numberOfPages=1, pageSize=A2} number of copies printed: 40
+Book{} Publication{title='Kniga1', numberOfPages=325, pageSize=A5} number of copies printed: 2
+Newspaper{} Publication{title='Spisanie1', numberOfPages=30, pageSize=A4} number of copies printed: 3

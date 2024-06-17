@@ -17,19 +17,13 @@ public class EmployeesExpensesCalculator {
      * @param income
      * @return value of total expenses for the salaries of the employees
      */
-    public BigDecimal EmployeesExpenses(Set<Employee> employeeSet, BigDecimal baseEmployeeSalary, double managersSalaryIncreasePercent, BigDecimal incomeThresholdForSalaryIncrease, BigDecimal income) {
+    public BigDecimal employeesExpenses(Set<Employee> employeeSet, BigDecimal baseEmployeeSalary, double managersSalaryIncreasePercent, BigDecimal incomeThresholdForSalaryIncrease, BigDecimal income) {
         BigDecimal expenses = BigDecimal.ZERO;
         if(isIncomeOverThreshold(income, incomeThresholdForSalaryIncrease)){
-            long numberOfManagers = employeeSet
-                    .stream()
-                    .filter(employee -> employee.getEmployeePosition().equals(EmployeePosition.MANAGER))
-                    .count();
-            expenses = expenses.add(managersIncreasedSalariesTotal(numberOfManagers, baseEmployeeSalary, managersSalaryIncreasePercent));
 
-            long numberOfPrinterOperators = employeeSet
-                    .stream()
-                    .filter(employee -> employee.getEmployeePosition().equals(EmployeePosition.PRINTER_OPERATOR))
-                    .count();
+            expenses = expenses.add(this.managersIncreasedSalariesTotal(employeeSet, baseEmployeeSalary, managersSalaryIncreasePercent));
+
+            long numberOfPrinterOperators = this.numberOfPrinterOperators(employeeSet);
             expenses = expenses.add(baseEmployeeSalary.multiply(BigDecimal.valueOf(numberOfPrinterOperators)));
 
         } else {
@@ -48,13 +42,40 @@ public class EmployeesExpensesCalculator {
     }
 
     /**
-     * @param numberOfManagers
+     * @param employeeSet
      * @param baseEmployeeSalary
      * @param managersSalaryIncreasePercent
      * @return sum of the salaries with increase included of all managers
      */
-    public BigDecimal managersIncreasedSalariesTotal(long numberOfManagers, BigDecimal baseEmployeeSalary, double managersSalaryIncreasePercent) {
+    public BigDecimal managersIncreasedSalariesTotal(Set<Employee> employeeSet, BigDecimal baseEmployeeSalary, double managersSalaryIncreasePercent) {
+        long numberOfManagers = numberOfManagers(employeeSet);
+        System.out.println(numberOfManagers);
         BigDecimal increasedSalary = baseEmployeeSalary.add(baseEmployeeSalary.multiply(BigDecimal.valueOf(managersSalaryIncreasePercent/100)));
+
         return increasedSalary.multiply(BigDecimal.valueOf(numberOfManagers)).setScale(2, RoundingMode.HALF_UP);
+    }
+
+    /**
+     *
+     * @param employeeSet
+     * @return number of Managers in employeeSet
+     */
+    public long numberOfManagers(Set<Employee> employeeSet) {
+        return employeeSet
+                .stream()
+                .filter(employee -> employee.getEmployeePosition().equals(EmployeePosition.MANAGER))
+                .count();
+    }
+
+    /**
+     *
+     * @param employeeSet
+     * @return number of Printer operators in employeeSet
+     */
+    public long numberOfPrinterOperators(Set<Employee> employeeSet) {
+        return employeeSet
+                .stream()
+                .filter(employee -> employee.getEmployeePosition().equals(EmployeePosition.PRINTER_OPERATOR))
+                .count();
     }
 }

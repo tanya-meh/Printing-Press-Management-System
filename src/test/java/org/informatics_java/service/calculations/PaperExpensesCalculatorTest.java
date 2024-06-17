@@ -3,7 +3,6 @@ package org.informatics_java.service.calculations;
 import org.informatics_java.data.Paper;
 import org.informatics_java.data.enums.PageSize;
 import org.informatics_java.data.enums.PaperType;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -19,7 +18,7 @@ class PaperExpensesCalculatorTest {
 
     private PaperExpensesCalculator paperExpensesCalculator;
     private Map<Paper, Integer> paperBoughtMap;
-    private EnumMap<PaperType, BigDecimal> paperTypeBacePriceEnumMap;
+    private EnumMap<PaperType, BigDecimal> paperTypeBasePriceEnumMap;
     private double paperPriceIncreasePercent;
     @BeforeEach
     void setUp() {
@@ -45,10 +44,10 @@ class PaperExpensesCalculatorTest {
 
         paperBoughtMap = Map.of(paper1, 10, paper2, 10, paper3, 10, paper4, 10, paper5, 10);
 
-        paperTypeBacePriceEnumMap = new EnumMap<>(PaperType.class);
-        paperTypeBacePriceEnumMap.put(PaperType.STANDARD, BigDecimal.valueOf(0.10));
-        paperTypeBacePriceEnumMap.put(PaperType.GLOSSY, BigDecimal.valueOf(0.20));
-        paperTypeBacePriceEnumMap.put(PaperType.NEWSPRINT, BigDecimal.valueOf(0.05));
+        paperTypeBasePriceEnumMap = new EnumMap<>(PaperType.class);
+        paperTypeBasePriceEnumMap.put(PaperType.STANDARD, BigDecimal.valueOf(0.10));
+        paperTypeBasePriceEnumMap.put(PaperType.GLOSSY, BigDecimal.valueOf(0.20));
+        paperTypeBasePriceEnumMap.put(PaperType.NEWSPRINT, BigDecimal.valueOf(0.05));
 
         paperPriceIncreasePercent = 50;
     }
@@ -60,7 +59,7 @@ class PaperExpensesCalculatorTest {
         Mockito.when(paper.getPageSize()).thenReturn(PageSize.A1);
 
         BigDecimal expected = BigDecimal.valueOf(0.53).setScale(2, RoundingMode.HALF_UP);
-        assertEquals(expected, paperExpensesCalculator.pricePerPaperByTypeAndSize(paperTypeBacePriceEnumMap, paper, paperPriceIncreasePercent));
+        assertEquals(expected, paperExpensesCalculator.pricePerPaperByTypeAndSize(paperTypeBasePriceEnumMap, paper, paperPriceIncreasePercent));
     }
 
     @Test
@@ -70,7 +69,7 @@ class PaperExpensesCalculatorTest {
         Mockito.when(paper.getPageSize()).thenReturn(PageSize.A1);
 
         BigDecimal expected = BigDecimal.valueOf(1.02).setScale(2, RoundingMode.HALF_UP);
-        assertEquals(expected, paperExpensesCalculator.pricePerPaperByTypeAndSize(paperTypeBacePriceEnumMap, paper, paperPriceIncreasePercent));
+        assertEquals(expected, paperExpensesCalculator.pricePerPaperByTypeAndSize(paperTypeBasePriceEnumMap, paper, paperPriceIncreasePercent));
     }
 
     @Test
@@ -80,13 +79,13 @@ class PaperExpensesCalculatorTest {
         Mockito.when(paper.getPageSize()).thenReturn(PageSize.A1);
 
         BigDecimal expected = BigDecimal.valueOf(0.27).setScale(2, RoundingMode.HALF_UP);
-        assertEquals(expected, paperExpensesCalculator.pricePerPaperByTypeAndSize(paperTypeBacePriceEnumMap, paper, paperPriceIncreasePercent));
+        assertEquals(expected, paperExpensesCalculator.pricePerPaperByTypeAndSize(paperTypeBasePriceEnumMap, paper, paperPriceIncreasePercent));
     }
 
     @Test
     void paperExpenses_test() {
         BigDecimal expected = BigDecimal.valueOf(11.5).setScale(2);
-        assertEquals(expected, paperExpensesCalculator.paperExpenses(paperBoughtMap, paperTypeBacePriceEnumMap, paperPriceIncreasePercent));
+        assertEquals(expected, paperExpensesCalculator.paperExpenses(paperBoughtMap, paperTypeBasePriceEnumMap, paperPriceIncreasePercent));
     }
 
 }

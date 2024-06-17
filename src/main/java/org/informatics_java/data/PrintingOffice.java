@@ -86,11 +86,11 @@ public class PrintingOffice {
         return this.printerSet.remove(printer);
     }
 
-    public int putPapersInStock(Paper paper, int numberOfPapers) {
-        return this.papersInStockMap.put(paper, numberOfPapers);
+    public void putPapersInStock(Paper paper, int numberOfPapers) {
+        this.papersInStockMap.put(paper, numberOfPapers);
     }
 
-    public int putPublicationsPrinted(Publication publication, int numberOfCopies) {
-        return this.publicationNumberOfCopiesMap.put(publication, numberOfCopies);
+    public void putPublicationsPrinted(Publication publication, int numberOfCopies) {
+        this.publicationNumberOfCopiesMap.put(publication, numberOfCopies);
     }
 }

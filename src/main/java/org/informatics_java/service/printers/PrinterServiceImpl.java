@@ -13,10 +13,11 @@ public class PrinterServiceImpl implements PrinterService{
      * @param printer
      * @return total number of papers loaded in the printer
      */
-    private int numberOfPapersTotal(Printer printer) {
-        return printer.getNumberOfPapersLoadedMap().values()
+    public int numberOfPapersTotal(Printer printer) {
+        int papersTotal = printer.getNumberOfPapersLoadedMap().values()
                 .stream()
                 .reduce(0, Integer::sum);
+        return papersTotal;
     }
 
 
@@ -25,7 +26,7 @@ public class PrinterServiceImpl implements PrinterService{
      * @param printer
      * @return number of papers that can be loaded in the printer before coming to the maximum capacity
      */
-    private int freePapersSpace(Printer printer) {
+    public int freePapersSpace(Printer printer) {
         return printer.getMaxNumberOfPapers() - this.numberOfPapersTotal(printer);
     }
 
@@ -63,7 +64,11 @@ public class PrinterServiceImpl implements PrinterService{
      * @param paperType
      * @return boolean value showing if the printer has enough paper from the type and size wanted
      */
-    private boolean hasEnoughPaper(Printer printer, Publication publication, int numberOfCopies, PaperType paperType) {
+    public boolean hasEnoughPaper(Printer printer, Publication publication, int numberOfCopies, PaperType paperType) {
+        if(printer.getNumberOfPapersLoadedMap().get(new Paper(paperType, publication.getPageSize())) == null) {
+            return false;
+        }
+
         if (publication.getNumberOfPages() * numberOfCopies < printer.getNumberOfPapersLoadedMap().get(new Paper(paperType, publication.getPageSize()))) {
             return true;
         }
@@ -78,10 +83,12 @@ public class PrinterServiceImpl implements PrinterService{
      * @param paperType
      * @return the number of papers from the paper type and size there was before retrieving a number of it
      */
-    private int retrieveLoadedPaper(Printer printer, Publication publication, int numberOfCopies, PaperType paperType) {
-        int currNumOfPapers = printer.getNumberOfPapersLoadedMap().get(new Paper(paperType, publication.getPageSize()));
+    public void retrieveLoadedPaper(Printer printer, Publication publication, int numberOfCopies, PaperType paperType) {
+        Paper paper = new Paper(paperType, publication.getPageSize());
+        int currNumOfPapers = printer.getNumberOfPapersLoadedMap().get(paper);
         int newNumOfPapers = currNumOfPapers - publication.getNumberOfPages() * numberOfCopies;
-        return printer.putNumberOfPapers(new Paper(paperType, publication.getPageSize()), newNumOfPapers);
+
+        printer.putNumberOfPapers(paper, newNumOfPapers);
     }
 
     /**
@@ -111,7 +118,6 @@ public class PrinterServiceImpl implements PrinterService{
         }
 
         if (!printer.getNumberOfPapersLoadedMap().containsKey(new Paper(paperType, publication.getPageSize()))) {
-            System.out.println(paperType + " ");
             return false;
         }
 
