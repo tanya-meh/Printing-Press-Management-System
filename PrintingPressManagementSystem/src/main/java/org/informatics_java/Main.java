@@ -67,7 +67,8 @@ public class Main {
         BigDecimal incomeThresholdForSalaryIncrease1 = BigDecimal.valueOf(20_000);
 
         //needed for computing the paper expenses
-        EnumMap<PaperType, BigDecimal> paperTypeBasePriceEnumMap1 = new EnumMap<>(Map.of(PaperType.STANDARD, BigDecimal.valueOf(0.05), PaperType.GLOSSY, BigDecimal.valueOf(0.50), PaperType.NEWSPRINT, BigDecimal.valueOf(0.03)));
+        EnumMap<PaperType, BigDecimal> paperTypeBasePriceEnumMap1 = new EnumMap<>(
+                Map.of(PaperType.STANDARD, BigDecimal.valueOf(0.05), PaperType.GLOSSY, BigDecimal.valueOf(0.50), PaperType.NEWSPRINT, BigDecimal.valueOf(0.03)));
         double paperPriceIncreasePercent1 = 20.;
 
         //needed for computing the total income
